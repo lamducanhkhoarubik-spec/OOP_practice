@@ -194,6 +194,44 @@ void HoaDon::Xuat(){
   }
   cout <<"Tong gia tien: "<<getTongGia();
 }
+Nguoi HoaDon::getKhach(){
+  return khach;
+}
+void CuaHang::Nhap(){
+  cout <<"Nhap so hoa don: ";
+  cin >> size;
+  for (int i = 0; i < size; i++){
+    cout << "Hoa don thu "<<i+1<<": ";
+    ds[i].Nhap();
+  }
+
+}
+void CuaHang::Xuat(){
+   for (int i =0; i < size; i++){
+    cout <<"Hoa don thu "<<i+1<<"\n";
+    ds[i].Xuat();
+   }
+}
+long CuaHang::ThuNhap(){
+  int sum = 0;
+  for (int i = 0; i < size; i++){
+    sum += ds[i].getTongGia();
+
+  }
+  return sum;
+}
+void TimKiemMax(){
+  int max_tong = ds[0].getTongGia();
+  int curr;
+  for(int i = 0; i < size; i++){
+    if (max_tong < ds[i].getTongGia()){
+      max_tong = ds[i].getTongGia();
+      curr = i;
+    }
+  }
+  cout <<"Khach hang mua nhieu nhat o cua hang la: \n";
+  ds[curr].Xuat();
+}
 int main(int argc, char *argv[]){
 
 
