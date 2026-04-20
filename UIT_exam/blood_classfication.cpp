@@ -172,6 +172,25 @@ void DanhSach::TimKiemNguoiCho(){
 
     
 }
-int main(int argc, char *argv[]){
-  cout <<"hello world";
+int i = 0;
+class K{
+public:
+K() {
+i = 3;
+}
+~K() {
+i=10;
+}
+};
+int foo() {
+int &p = i;
+A ob;
+return p;
+}
+int main(){
+    int a = 5;
+    int &p = a;
+    a = 6;
+    
+    cout << p;
 }
