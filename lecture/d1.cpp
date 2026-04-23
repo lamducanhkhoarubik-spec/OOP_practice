@@ -2,75 +2,154 @@
 #include <cstring>
 #include <cstdio>
 #include <stdexcept>
+#include <map>
 #include <cmath>
 #include <algorithm>
 using namespace std;
-struct ComplexVal{
-private:
-    double real, img;
-public:
-    ComplexVal(double r, double i):real(r),img(i){};
-};
+
+
 class MyMatrix{
-    
     private:
       int nRow, nCol;
       double **pD;
     public:
-      MyMatrix(){};
-
-      MyMatrix(int nR, int nC){
-        this->nRow = nR;
-        this->nCol = nC;
-      }
-        double& at(int r, int c);
-        double det();
-      
-      ~MyMatrix(){
-        for (int i = 0; i < nRow; i++){
-            delete[] pD[i];
+      MyMatrix() : nRow(0), nCol(0), pD(nullptr){}
+      MyMatrix(int nR, int nC):nRow(nR),nCol(nC){
+        if (nR <= 0 || nC <= 0){
+            pD = nullptr;
+            return;
         }
-        delete[] pd;
-        pD = nullptr;
+        pD = new double*[nR];
+        pD[0] = new double[nR * nC];
+        for (double **p = pD + 1, **pE = pD + nR; p < pE; ++p){
+            *p = *(p - 1) + nC;
+        }
       }
+      ~MyMatrix(){
+        if (pD){
+            delete[] pD[0];
+            delete[] pD;
+        }
+      }
+      double& at(int r, int c){
+        if (r >= nRow || r < 0 || c >= nCol || c < 0) throw std::out_of_range("loi");
+        return *(*(pD + r) + c);
+      }
+      MyMatrix operator+(const MyMatrix &M){
+        if (this->nCol != M.nCol || this->nRow != M.nRow){
+            throw -1;
+        }
+        MyMatrix res(nRow, nCol);
+        double *pRes = *res.pD;
+        double *pA = *pD;
+        double *pB = *M.pD;
+        double **pEnd = pD + (nRow*nCol);
+        while (pRes < *pEnd){
+          *pRes++ = *pA++ + *pB++;
+
+        }
+        return res;
+      }
+      MyMatrix operator*(MyMatrix &M){
+        if (nRow != M.nCol) throw invalid_argument("Invalid dimension!");
+        MyMatrix res(nRow, M.nCol);
+        for (int i = 0; i < nRow; ++i){
+          for (int j = 0; j < M.nCol; ++j){
+            double sum = 0;
+            double *pRowA = *(pD + i);
+            double *pColB = *(M.pD) + j;
+            for (int k = 0; k < nCol; ++k){
+              sum += (*pRowA) * (*pColB);
+              pColB += M.nCol;
+            }
+            res.at(i,j) = sum;
+          }
+        }
+        return res;
+      }
+      void print(){
+        for (int i = 0; i < nRow; ++i){
+            for (int j = 0; j < nCol; ++j){
+                cout << at(i,j)<<" ";
+            }
+            cout <<"\n";
+        }
+      }
+};   
+void reverse(int *arr, int size){
+  if (size <= 1) return;
+  int *left = arr;
+  int *right = arr + size - 1;
+  while (left < right){
+    int temp = *left;
+    *left = *right;
+    *right = temp;
+    left++;
+    right--;
+  }
+
+}
+//Ép kiểu tới chết
+class MatrixPro{
+  private: 
+    int rows, cols;
+    int *data;
+  public:
+    MatrixPro(int r, int c):rows(r),cols(c){
+      data = new int[r*c];
+    }
+    ~MatrixPro(){
+      delete[] data;
+    }
+    void set(int r, int c, int val){
+      *(data + (r * cols + c)) = val;
+    }
+    void print(){
+      for (int i = 0; i < rows; ++i){
+        for (int j = 0; j < cols; ++j){
+          cout << *(data + (i*cols+j)) << " ";
+        }
+        cout << endl;
+      }
+    }
+    MatrixPro operator+(const MatrixPro &M){
+      if (this->rows != M.rows || this->cols != M.cols) throw -1;
+      MatrixPro res(rows, cols);
+      int *pRes = M.data;
+      int *pA = this->data;
+      int *pB = M.data;
+      int *pEnd = this->data + (rows*cols);
+      while (pRes < pEnd){
+        *pRes++ = *pA++ + *pB++;
+      }
+      return res;
+    }
 };
-MyMatrix::MyMatrix():nRow(0),nCol(0),pD(nullptr){};
-MyMatrix::MyMatrix(int nR, int nC), nRow(nR), nCol(nC),pD(nullptr){
-    pD = new double*[nR]; 
-
-    // 2. Cấp phát MỘT KHỐI DUY NHẤT cho toàn bộ dữ liệu (nR * nC phần tử)
-    // Gán địa chỉ đầu tiên của khối này cho hàng đầu tiên (pD[0])
-    pD[0] = new double[nR * nC]; 
-
-    // 3. Vòng lặp "phân lô bán nền":
-    // Chia khối dữ liệu lớn thành từng đoạn, mỗi đoạn dài nC phần tử
-    for (double **p = pD + 1, **pE = pD + nR; p != pE; ++p) {
-        *p = *(p - 1) + nC; 
+string longestDuplicate(string s){
+  map<char, int> freq;
+  string res = "";
+  int max_num = 0;
+  for (int i = 0; i < s.length(); ++i){
+    freq[s[i]]++;
+    max_num = max(max_num, freq[s[i]]);
+  }
+  for (int i = 0; i < s.length();++i){
+    if (freq[s[i]] == max_num){
+      res += s[i];
     }
+  }
+  return s;
+  
 }
-MyMatrix::~MyMatrix(){
-    if (!pD) return nullptr;
-    delete[] *pD;
-    delete[] pD;
+int countSetBits(int n){
+  int count = 0;
+  while (n > 0){
+    n &= (n-1);
+    count++;
+  }
+  return count;
 }
-MyMatrix MyMatrix::operator+(MyMatri &M){
-    if (nRow != M.nRow || nCol != M.nCol) throw -1;
-    MyMatrix res(nRow, nCol); 
-    for (double *p = res.pD, *pA = *pD, *pC = *M.pD, *pE = p + nRow*nCol; p != pE){
-        *p++ = *pA++ + *pC++;
-    }
-    return p;
-}
-MyMatrix MyMatrix::operator*(MyMatrix &M){
-    if (nCol != M.nRow) throw -1;
-    MyMatrix res(nRow, nCol);
-
-    double *pDestStart = *res.pD;
-
-}
-int main(int argc, char *argv[]){
-    string s1 = "hello world";
-    string s2 = "hello world";
-    cout << (s1 == s2) << endl;
-    cout << (s1.c_str() == s2.c_str()) << endl;
+int main() {
+   
+    return 0;
 }
