@@ -149,7 +149,104 @@ int countSetBits(int n){
   }
   return count;
 }
-int main() {
+
+
+template <class T> 
+class Array2D {
+private:
+	int r;
+	int c;
+	T** arr;
+
+public:
+    Array2D(int r, int c){
+       this->r = r;
+       this->c = c;
+       this->p = new T*[r];
+       for (int i = 0; i < r; i++){
+           this->p[i] = new T[c];
+       }
+    }
+    Array2D(int r, int c, T init){
+        this->r = r;
+       this->c = c;
+       this->p = new T*[r];
+       for (int i = 0; i < r; i++){
+           this->p[i] = new T[c];
+       }
+       for (int i = 0 ; i < r; i++){
+           for (int j = 0; j < c; j++){
+               this->p[i][j] = init;
+           }
+       }
+    }
+    ~Array2D(){
+        if (this->p != nullptr){
+        for (int i = 0; i < r; i++){
+            delete[] this->p[i];
+        }
+        delete[] this->p;
+        this->p = nullptr;
+        }
+    }
+    
+    
+
+    int getR() {return this->r;}
+    int getC() {return this->c;}
+    
+    void disp() {
+        for (int i = 0; i < this->r; i++) {
+            for (int j = 0; j < this->c; j++) {
+                cout << arr[i][j] << " ";
+            }
+            cout << endl;
+        }
+    }
+    Array2D operator*(const Array2D &M){
+      if (this->r != M.r){return nullptr;}
+      Array2D res(this->r, M.c);
+      for (int i = 0; i < this->r; ++i){
+        for (int j = 0; j < M.c; ++j){
+          int sum = 0;
+          T *tRowA = *(arr + i);
+          T *tColB = *(M.arr + j);
+          for (int k = 0; k < c; ++k){
+            sum += (*tRowA) * (*tColB);
+            tColB += M.c;
+          }
+          res->arr[i][j] = sum;
+        }
+      }
+      return res;
+    }
    
+};
+
+class Coordinate{
+  private:
+    float x;
+    float y;
+  public:
+    Coordinate(float x, float y) : x(x), y(y){};
+    void setX(float x){this->x = x;}
+    void setY(float y) {this->y = y;}
+    float getX(){return this->x;}
+    float getY(){return this->y;}
+    float distanceTo(Coordinate &other){
+       return abs(this->x - other.x) + abs(this->y - other.y);
+    }
+};
+int main() {
+   float Xa, Xb, Ya, Yb;
+    cin >> Xa >> Xb >> Ya >> Yb;
+    Coordinate a(1,2);
+    Coordinate b(0,1);
+    cout << a.distanceTo(b) << endl;
+    a.setX(Xa); a.setY(Ya);
+    b.setX(Xb); b.setY(Yb);
+    cout << abs(a.getX() - b.getX()) + abs(a.getY() - b.getY()) << endl;
+    cout << a.distanceTo(b) << endl;
+    cout << abs(Xa - Xb) + abs(Ya - Yb);
     return 0;
 }
